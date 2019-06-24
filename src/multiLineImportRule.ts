@@ -2,9 +2,6 @@ import * as Lint from 'tslint';
 import * as utils from "tsutils";
 import * as ts from 'typescript';
 
-import { getLineRanges, getTokenAtPosition, isPositionInComment } from "tsutils";
-
-
 const DEAFULT_IMPORT_COUNT = 2;
 interface Options {
     imports: number;
@@ -63,28 +60,3 @@ function walk(ctx: Lint.WalkContext<Options>) {
         }
     }
 }
-
-
-// class Walk extends Lint.RuleWalker {
-//
-//     protected visitNamedImports(node: ts.NamedImports): void {
-//         if (node.elements.length <= 2) {
-//             super.visitNamedImports(node);
-//             return;
-//         }
-//
-//         for (let i = 0; i < node.elements.length; i++) {
-//             const namedImport = node.elements[i];
-//             const escaped = namedImport.getFullText().replace(/ /g, '');
-//
-//             if (escaped.charAt(0) !== '\n') {
-//                 this.addFailureAtNode(namedImport, Rule.FAILURE_STRING);
-//
-//                 super.visitNamedImports(node);
-//                 return;
-//             }
-//         }
-//
-//         super.visitNamedImports(node);
-//     }
-// }

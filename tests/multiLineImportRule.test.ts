@@ -62,5 +62,15 @@ describe('multi-line-import', () => {
         const src = `import * as Kek from 'test';`;
         const result = helper({src, rule});
         expect(result.errorCount).toBe(0);
-    })
+    });
+
+    it(`2 import with error`, () => {
+        const src = `
+        import { a, b } from 'asd';
+        import { first, second, third } from 'test';
+        `;
+        const result = helper({src, rule});
+        expect(result.errorCount).toBe(3);
+    });
+
 });
