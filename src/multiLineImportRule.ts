@@ -1,34 +1,90 @@
 import * as Lint from 'tslint';
+import * as utils from "tsutils";
 import * as ts from 'typescript';
 
+import { getLineRanges, getTokenAtPosition, isPositionInComment } from "tsutils";
+
+
+const DEAFULT_IMPORT_COUNT = 2;
+interface Options {
+    imports: number;
+}
+
+function parseOptions(ruleArguments: any[]): Options {
+    const imports = (ruleArguments[0] || DEAFULT_IMPORT_COUNT) as number;
+
+    return {imports};
+}
+
+const FAILURE_MESSAGE_MORE = (imports) => `If there are > ${imports} named imports then each of them have to be on new line`;
+const FAILURE_MESSAGE_LESS = (imports) => `If there are <= ${imports} named imports then they have to be on same line`;
+
 export class Rule extends Lint.Rules.AbstractRule {
-    static FAILURE_STRING = 'Named import must be on new line';
 
     public apply(sourceFile: ts.SourceFile): Lint.RuleFailure[] {
-        return this.applyWithWalker(new Walk(sourceFile, this.getOptions()));
+        return this.applyWithFunction(sourceFile, walk, parseOptions(this.ruleArguments));
     }
 }
 
-class Walk extends Lint.RuleWalker {
+function walk(ctx: Lint.WalkContext<Options>) {
+    const {
+        sourceFile,
+        options: {imports}
+    } = ctx;
 
-    protected visitNamedImports(node: ts.NamedImports): void {
-        if (node.elements.length <= 2) {
-            super.visitNamedImports(node);
+    for (const token of utils.findImports(sourceFile, utils.ImportKind.AllImports)) {
+        const parent = token.parent;
+        const importClause = utils.isImportDeclaration(parent) ? parent.importClause : void 0;
+
+        const importsSpecificNamedExports =
+            importClause &&
+            importClause.namedBindings &&
+            utils.isNamedImports(importClause.namedBindings);
+
+        if (!importsSpecificNamedExports) {
             return;
         }
 
-        for (let i = 0; i < node.elements.length; i++) {
-            const namedImport = node.elements[i];
+        const nameBindings = utils.isNamedImports(importClause.namedBindings) ? importClause.namedBindings : void 0;
+
+        for (let i = 0; i < nameBindings.elements.length; i++) {
+            const namedImport = nameBindings.elements[i];
             const escaped = namedImport.getFullText().replace(/ /g, '');
 
-            if (escaped.charAt(0) !== '\n') {
-                this.addFailureAtNode(namedImport, Rule.FAILURE_STRING);
-
-                super.visitNamedImports(node);
-                return;
+            if (nameBindings.elements.length > imports) {
+                if (escaped.charAt(0) !== '\n') {
+                    ctx.addFailureAtNode(namedImport, FAILURE_MESSAGE_MORE(imports));
+                }
+            } else {
+                if (escaped.charAt(0) === '\n') {
+                    ctx.addFailureAtNode(namedImport, FAILURE_MESSAGE_LESS(imports));
+                }
             }
         }
-
-        super.visitNamedImports(node);
     }
 }
+
+
+// class Walk extends Lint.RuleWalker {
+//
+//     protected visitNamedImports(node: ts.NamedImports): void {
+//         if (node.elements.length <= 2) {
+//             super.visitNamedImports(node);
+//             return;
+//         }
+//
+//         for (let i = 0; i < node.elements.length; i++) {
+//             const namedImport = node.elements[i];
+//             const escaped = namedImport.getFullText().replace(/ /g, '');
+//
+//             if (escaped.charAt(0) !== '\n') {
+//                 this.addFailureAtNode(namedImport, Rule.FAILURE_STRING);
+//
+//                 super.visitNamedImports(node);
+//                 return;
+//             }
+//         }
+//
+//         super.visitNamedImports(node);
+//     }
+// }

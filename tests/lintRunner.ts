@@ -4,9 +4,9 @@ export const helper = ({src, rule}) => {
     const linter = new Linter({fix: false});
     linter.lint('', src, Configuration.parseConfigFile({
         rules: {
-            [rule.name || rule]: [true, ...rule.options]
+            [rule.name || rule]: [true, ...(rule.options || [])]
         },
-        rulesDirectory: 'src'
+        rulesDirectory: './src'
     }));
     return linter.getResult();
 };
