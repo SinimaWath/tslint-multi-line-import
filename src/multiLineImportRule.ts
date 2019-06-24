@@ -13,8 +13,8 @@ function parseOptions(ruleArguments: any[]): Options {
     return {imports};
 }
 
-const FAILURE_MESSAGE_MORE = (imports) => `If there are > ${imports} named imports then each of them have to be on new line`;
-const FAILURE_MESSAGE_LESS = (imports) => `If there are <= ${imports} named imports then they have to be on same line`;
+const FAILURE_MESSAGE_MORE = (imports) => `If there are => ${imports} named imports then each of them have to be on new line`;
+const FAILURE_MESSAGE_LESS = (imports) => `If there are < ${imports} named imports then they have to be on same line`;
 
 export class Rule extends Lint.Rules.AbstractRule {
 
@@ -48,7 +48,7 @@ function walk(ctx: Lint.WalkContext<Options>) {
             const namedImport = nameBindings.elements[i];
             const escaped = namedImport.getFullText().replace(/ /g, '');
 
-            if (nameBindings.elements.length > imports) {
+            if (nameBindings.elements.length >= imports) {
                 if (escaped.charAt(0) !== '\n') {
                     ctx.addFailureAtNode(namedImport, FAILURE_MESSAGE_MORE(imports));
                 }

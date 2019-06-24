@@ -7,10 +7,16 @@ const ruleWith5 = {
 };
 
 describe('multi-line-import', () => {
-    it(`2 import 1 line no error`, () => {
-        const src = `import { first, second } from 'test';`;
+    it(`1 import 1 line no error`, () => {
+        const src = `import { first } from 'test';`;
         const result = helper({src, rule});
         expect(result.errorCount).toBe(0);
+    });
+
+    it(`2 import 1 line with error`, () => {
+        const src = `import { first, second } from 'test';`;
+        const result = helper({src, rule});
+        expect(result.errorCount).toBe(2);
     });
 
     it(`3 import 3 line no error`, () => {
@@ -75,7 +81,7 @@ describe('multi-line-import', () => {
 
     it(`2 import with error`, () => {
         const src = `
-        import { a, b } from 'asd';
+        import { a } from 'asd';
         import { first, second, third } from 'test';
         `;
         const result = helper({src, rule});
