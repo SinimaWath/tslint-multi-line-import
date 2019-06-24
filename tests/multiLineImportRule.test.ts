@@ -64,6 +64,15 @@ describe('multi-line-import', () => {
         expect(result.errorCount).toBe(0);
     });
 
+    it(`1 * import and 1 namned import with error`, () => {
+        const src = `
+        import * as React from 'asd';
+        import { first, second, third } from 'test';
+        `;
+        const result = helper({src, rule});
+        expect(result.errorCount).toBe(3);
+    });
+
     it(`2 import with error`, () => {
         const src = `
         import { a, b } from 'asd';

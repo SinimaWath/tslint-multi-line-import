@@ -39,7 +39,7 @@ function walk(ctx: Lint.WalkContext<Options>) {
             utils.isNamedImports(importClause.namedBindings);
 
         if (!importsSpecificNamedExports) {
-            return;
+            continue;
         }
 
         const nameBindings = utils.isNamedImports(importClause.namedBindings) ? importClause.namedBindings : void 0;
