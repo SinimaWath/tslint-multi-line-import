@@ -1,7 +1,7 @@
 {
   "name": "multiline-import",
   "version": "0.1.4",
-  "description": "",
+  "description": "TSLint rules to check multiline imports",
   "main": "dist/multiLineImportRule.js",
   "homepage": "https://github.com/SinimaWath/tslint-multi-line-import",
   "repository": {
